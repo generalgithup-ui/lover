@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="km">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romantic Heart Circle - I love u</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins & Great Vibes for romantic typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for extra icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #2e0225 0%, #110115 100%);
+        }
+
+        .romantic-text {
+            font-family: 'Great Vibes', cursive;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8),
+                0 0 40px rgba(255, 20, 147, 0.6),
+                0 0 60px rgba(255, 105, 180, 0.4);
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.8));
+            }
+
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 30px rgba(255, 20, 147, 1));
+            }
+        }
+
+        .center-heart {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        /* Particle Canvas Styling */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Smooth Rotation Container */
+        @keyframes rotateCircle {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotating-ring {
+            animation: rotateCircle 25s linear infinite;
+        }
+
+        .rotating-ring:hover {
+            animation-play-state: paused;
+        }
+
+        /* Individual heart glow effect */
+        .ring-heart {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px #ff69b4);
+        }
+
+        .ring-heart:hover {
+            transform: scale(1.4) !important;
+            filter: drop-shadow(0 0 20px #ff1493);
+        }
+    </style>
+</head>
+
+<body class="relative w-screen h-screen flex items-center justify-center select-none">
+
+    <!-- Background Particle Sparkles Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Main Container -->
+    <div class="relative z-10 flex flex-col items-center justify-center w-full h-full">
+
+        <!-- Top Title / Greeting -->
+        <div class="absolute top-8 text-center px-4">
+            <h1
+                class="text-pink-300 text-xl sm:text-2xl font-light tracking-widest uppercase opacity-90 drop-shadow-md">
+                Forever & Always
+            </h1>
+            <div class="w-16 h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent mx-auto mt-2"></div>
+        </div>
+
+        <!-- Central Circle Stage -->
+        <div class="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center">
+
+            <!-- Rotating Ring of Hearts (Generated dynamically via JS for precision) -->
+            <div id="heartRing" class="absolute w-full h-full rotating-ring"></div>
+
+            <!-- Absolute Center: Glowing Heart & "I love u" Text -->
+            <div class="absolute flex flex-col items-center justify-center text-center z-20 pointer-events-auto cursor-pointer"
+                onclick="triggerLoveBurst()">
+                <!-- Glowing Big Heart SVG -->
+                <div class="center-heart mb-2">
+                    <svg class="w-20 h-20 sm:w-24 sm:h-24 text-pink-500 fill-current" viewBox="0 0 24 24">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                </div>
+                <!-- Romantic Text -->
+                <h2 class="romantic-text text-4xl sm:text-6xl text-white font-bold tracking-wide mt-1">
+                    I love u
+                </h2>
+                <span class="text-xs text-pink-300/80 mt-1 tracking-widest uppercase font-light animate-pulse">
+                    (Click me)
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Bottom Controls / Footer -->
+        <div class="absolute bottom-8 text-center">
+            <button onclick="toggleMusic()" id="musicBtn"
+                class="bg-pink-600/30 hover:bg-pink-600/50 text-pink-200 border border-pink-400/40 px-6 py-2.5 rounded-full text-sm font-medium backdrop-blur-md transition-all duration-300 shadow-lg flex items-center gap-2 mx-auto">
+                <i class="fa-solid fa-music"></i> <span>Play Romantic Melody</span>
+            </button>
+            <p class="text-pink-300/50 text-xs mt-3">Created with ❤️ for special moments</p>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- 1. Generate Rotating Circle of Hearts ---
+        const ringContainer = document.getElementById('heartRing');
+        const totalHearts = 12; // Number of hearts in the circle
+        const radius = 140; // Radius of the circle in pixels (adjusts dynamically for screen size)
+
+        function createHeartRing() {
+            ringContainer.innerHTML = '';
+            const isSmall = window.innerWidth < 640;
+            const currentRadius = isSmall ? 110 : 160;
+
+            for (let i = 0; i < totalHearts; i++) {
+                const angle = (i * 2 * Math.PI) / totalHearts;
+                const x = currentRadius * Math.cos(angle);
+                const y = currentRadius * Math.sin(angle);
+
+                const heartWrapper = document.createElement('div');
+                heartWrapper.className = 'absolute ring-heart cursor-pointer';
+                // Position relative to center (width/height center offset handled via transform)
+                heartWrapper.style.left = `calc(50% + ${x}px - 16px)`;
+                heartWrapper.style.top = `calc(50% + ${y}px - 16px)`;
+
+                heartWrapper.innerHTML = `
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-pink-400 fill-current drop-shadow-[0_0_8px_rgba(255,105,180,0.9)]" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                `;
+
+                // Add interactive click effect on individual ring hearts
+                heartWrapper.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    createMiniBurst(e.clientX, e.clientY);
+                });
+
+                ringContainer.appendChild(heartWrapper);
+            }
+        }
+
+        window.addEventListener('resize', createHeartRing);
+        createHeartRing();
+
+        // --- 2. Particle Sparkles Background Canvas ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const particleCount = 50;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedY = -(Math.random() * 0.8 + 0.2);
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.fadeSpeed = Math.random() * 0.01 + 0.005;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.opacity -= this.fadeSpeed * 0.5;
+
+                if (this.y < 0 || this.opacity <= 0) {
+                    this.reset();
+                    this.y = canvas.height + 10;
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(this.opacity, 0);
+                ctx.fillStyle = '#ff9ebb';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff69b4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // --- 3. Interactive Burst Effect on Click ---
+        function triggerLoveBurst() {
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const x = window.innerWidth / 2 + (Math.random() - 0.5) * 150;
+                    const y = window.innerHeight / 2 + (Math.random() - 0.5) * 150;
+                    createMiniBurst(x, y);
+                }, i * 30);
+            }
+        }
+
+        function createMiniBurst(x, y) {
+            const burstEl = document.createElement('div');
+            burstEl.innerHTML = '❤️';
+            burstEl.className = 'absolute text-xl pointer-events-none z-30 transition-all duration-700 ease-out';
+            burstEl.style.left = `${x}px`;
+            burstEl.style.top = `${y}px`;
+            document.body.appendChild(burstEl);
+
+            const destX = (Math.random() - 0.5) * 200;
+            const destY = (Math.random() - 0.5) * 200 - 50;
+
+            requestAnimationFrame(() => {
+                burstEl.style.transform = `translate(${destX}px, ${destY}px) scale(1.6)`;
+                burstEl.style.opacity = '0';
+            });
+
+            setTimeout(() => {
+                burstEl.remove();
+            }, 700);
+        }
+
+        // --- 4. Optional Web Audio API Romantic Melody Synthesizer ---
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyInterval = null;
+
+        function toggleMusic() {
+            const btnText = document.querySelector('#musicBtn span');
+            const btnIcon = document.querySelector('#musicBtn i');
+
+            if (!isPlaying) {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                isPlaying = true;
+                btnText.textContent = 'Pause Melody';
+                btnIcon.className = 'fa-solid fa-pause';
+                playRomanticSequence();
+            } else {
+                isPlaying = false;
+                btnText.textContent = 'Play Romantic Melody';
+                btnIcon.className = 'fa-solid fa-music';
+                if (melodyInterval) clearInterval(melodyInterval);
+            }
+        }
+
+        function playNote(frequency, duration) {
+            if (!audioCtx || !isPlaying) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function playRomanticSequence() {
+            // Soft pleasant musical notes (Frequencies in Hz)
+            const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77];
+            const chordPattern = [0, 2, 4, 5, 4, 2];
+            let index = 0;
+
+            melodyInterval = setInterval(() => {
+                if (!isPlaying) return;
+                playNote(notes[chordPattern[index]], 1.2);
+                index = (index + 1) % chordPattern.length;
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
